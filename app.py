@@ -1,3 +1,21 @@
+def mapear_notas_canceladas(xml_files):
+    """Retorna um set com as chaves das notas canceladas."""
+    chaves_canceladas = set()
+    for xml_file in xml_files:
+        try:
+            tree = ET.parse(xml_file)
+            root = tree.getroot()
+            # Evento de cancelamento: tag raiz pode ser procEventoNFe
+            if root.tag.endswith('procEventoNFe'):
+                inf_evento = root.find('.//{http://www.portalfiscal.inf.br/nfe}infEvento')
+                if inf_evento is not None:
+                    tp_evento = inf_evento.find('{http://www.portalfiscal.inf.br/nfe}tpEvento')
+                    ch_nfe = inf_evento.find('{http://www.portalfiscal.inf.br/nfe}chNFe')
+                    if tp_evento is not None and tp_evento.text == '110111' and ch_nfe is not None:
+                        chaves_canceladas.add(ch_nfe.text)
+        except Exception:
+            continue
+    return chaves_canceladas
 import streamlit as st
 import pandas as pd
 import zipfile
@@ -105,13 +123,14 @@ def processar_nfe_por_item(xml_path, ns):
             frete = root.find('.//ns:transp/ns:vFrete', ns)
             seguro = root.find('.//ns:transp/ns:vSeg', ns)
 
+            vprod = prod.find('ns:vProd', ns)
             dados.append({
                 "Número NFe": numero_nfe,
                 "Data de Emissão": data_emissao,
                 "CNPJ Emitente": cnpj_emitente,
                 "Emitente": emitente,
                 "UF Emitente": uf_emitente,
-                "Valor da Nota": total.find('ns:ICMSTot/ns:vNF', ns).text if total.find('ns:ICMSTot/ns:vNF', ns) is not None else "",
+                "Valor Total do Produto": vprod.text if vprod is not None else "",
                 "ICMS": icms_valor.text if icms_valor is not None else "",
                 "Alíquota ICMS": icms_aliquota.text if icms_aliquota is not None else "",
                 "IPI": ipi_valor.text if ipi_valor is not None else "",
@@ -249,6 +268,7 @@ def processar_nfe_por_cabecalho(xml_path, ns):
             "Versão": versao,
             "Data de Emissão": data_emissao,
             "CNPJ Emitente": cnpj_emitente,
+            "CFOP": cfop,
             "Emitente": emitente,
             "UF Emitente": uf_emitente,
             "Valor da Nota": total.find('ns:ICMSTot/ns:vNF', ns).text if total.find('ns:ICMSTot/ns:vNF', ns) is not None else "",
@@ -261,7 +281,6 @@ def processar_nfe_por_cabecalho(xml_path, ns):
             "Frete": frete.text if frete is not None else "",
             "Seguro": seguro.text if seguro is not None else "",
             "ICMS Desonerado": total.find('ns:ICMSTot/ns:vICMSDeson', ns).text if total.find('ns:ICMSTot/ns:vICMSDeson', ns) is not None else "",
-            "CFOP": cfop,
             "Status da NFe": status
         }]
     except ET.ParseError:
@@ -336,6 +355,9 @@ def main():
                 else:
                     st.markdown(f"<div style='background-color:#E8EEF5; color:#1F2937; border-radius:8px; padding:0.7em 1em; margin-bottom:1em; font-size:1.1em;'><b>{len(xml_files)}</b> arquivo(s) XML encontrado(s)</div>", unsafe_allow_html=True)
 
+                    # Mapeia chaves de notas canceladas
+                    chaves_canceladas = mapear_notas_canceladas(xml_files)
+
                     progress_bar = st.progress(0)
                     dados_totais = []
 
@@ -344,7 +366,15 @@ def main():
 
                         if tipo_doc == "NFe":
                             ns = {'ns': 'http://www.portalfiscal.inf.br/nfe'}
-                            dados_totais.extend(processar_nfe_por_cabecalho(xml_file, ns))
+                            notas = processar_nfe_por_cabecalho(xml_file, ns)
+                            # Marca situação
+                            for nota in notas:
+                                chave = nota.get("Chave de Acesso", "")
+                                if chave in chaves_canceladas:
+                                    nota["Situação"] = "Cancelada"
+                                else:
+                                    nota["Situação"] = "Autorizada"
+                            dados_totais.extend(notas)
                         else:
                             ns = {'ns': 'http://www.portalfiscal.inf.br/cte'}
                             dados_totais.extend(processar_cte(xml_file, ns))
