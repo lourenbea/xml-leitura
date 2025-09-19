@@ -7,21 +7,37 @@ import tempfile
 from datetime import datetime
 from io import BytesIO   # para exportar Excel
 
+
 # ===============================
-# Configuração visual do app
+# Configuração visual do app (corporativo)
 # ===============================
 st.set_page_config(
-    page_title="Leitor de XMLs",   # título da aba do navegador
-    page_icon="📂",                # ícone na aba
-    layout="wide"                  # usa toda a largura da tela
+    page_title="Leitor de XMLs",
+    page_icon="�",
+    layout="wide"
 )
 
-# Cabeçalho do app
-st.title("📂 Leitor de XMLs - XML to Excel")
-st.markdown("Converta **NFe** e **CTe** em planilhas Excel de forma rápida 🚀")
+# Logo e título
+col_logo, col_title = st.columns([1, 8])
+with col_logo:
+    st.image("https://cdn-icons-png.flaticon.com/512/337/337946.png", width=60)
+with col_title:
+    st.markdown("""
+        <h1 style='margin-bottom:0; color:#1F2937; font-size:2.5rem;'>Leitor de XMLs</h1>
+        <span style='color:#4B5563; font-size:1.2rem;'>Conversão corporativa de NFe e CTe para Excel</span>
+    """, unsafe_allow_html=True)
 
-# Logo (opcional: pode ser link da internet ou arquivo local ex: 'logo.png')
-# st.image("logo.png", width=150)
+st.markdown("---")
+
+# Instruções
+with st.expander("ℹ️ Como usar", expanded=True):
+    st.markdown("""
+    1. Faça upload de um ou mais arquivos ZIP contendo XMLs de NFe ou CTe.<br>
+    2. Utilize os filtros na barra lateral para refinar os resultados.<br>
+    3. Baixe a planilha Excel pronta para análise.<br>
+    <br>
+    <span style='color:#6B7280;'>Atenção: Apenas arquivos XML válidos serão processados.</span>
+    """, unsafe_allow_html=True)
 
 # ===============================
 # Função para extrair XMLs de um ZIP
@@ -209,9 +225,11 @@ def main():
     layout = "Cabeçalho"  # Fixo, não mostra mais opção
 
     uploaded_files = st.file_uploader(
-        "Selecione um ou mais arquivos ZIP com os XMLs",
+        "<b>Selecione um ou mais arquivos ZIP com os XMLs</b>",
         type="zip",
-        accept_multiple_files=True
+        accept_multiple_files=True,
+        help="Apenas arquivos ZIP contendo XMLs de NFe ou CTe.",
+        label_visibility="visible"
     )
 
     if uploaded_files:
@@ -230,7 +248,7 @@ def main():
                 if not xml_files:
                     st.warning("Nenhum arquivo XML encontrado nos ZIPs.")
                 else:
-                    st.info(f"{len(xml_files)} arquivo(s) XML encontrado(s)")
+                    st.info(f"<b>{len(xml_files)}</b> arquivo(s) XML encontrado(s)", unsafe_allow_html=True)
 
                     progress_bar = st.progress(0)
                     dados_totais = []
@@ -249,31 +267,36 @@ def main():
                         df = pd.DataFrame(dados_totais)
                         if 'Data de Emissão' in df.columns:
                             df['Data de Emissão'] = pd.to_datetime(df['Data de Emissão'], errors='coerce', utc=True).dt.date
-                        
-                        st.sidebar.header("Filtros")
-                        cfop_options = sorted(df['CFOP'].unique().tolist()) if 'CFOP' in df.columns else []
-                        selected_cfops = st.sidebar.multiselect("Filtrar por CFOP:", cfop_options)
 
-                        if 'Data de Emissão' in df.columns and not df['Data de Emissão'].isna().all():
-                            min_date = df['Data de Emissão'].min()
-                            max_date = df['Data de Emissão'].max()
-                        else:
-                            min_date = max_date = datetime.now().date()
+                        with st.sidebar:
+                            st.markdown("<b>Filtros</b>", unsafe_allow_html=True)
+                            cfop_options = sorted(df['CFOP'].unique().tolist()) if 'CFOP' in df.columns else []
+                            selected_cfops = st.multiselect("Filtrar por CFOP:", cfop_options)
 
-                        start_date = st.sidebar.date_input('Data de início', min_date)
-                        end_date = st.sidebar.date_input('Data final', max_date)
+                            if 'Data de Emissão' in df.columns and not df['Data de Emissão'].isna().all():
+                                min_date = df['Data de Emissão'].min()
+                                max_date = df['Data de Emissão'].max()
+                            else:
+                                min_date = max_date = datetime.now().date()
+
+                            start_date = st.date_input('Data de início', min_date)
+                            end_date = st.date_input('Data final', max_date)
 
                         df_filtered = df.copy()
 
                         if selected_cfops:
                             df_filtered = df_filtered[df_filtered['CFOP'].isin(selected_cfops)]
-                        
+
                         if 'Data de Emissão' in df_filtered.columns:
                             df_filtered = df_filtered[(df_filtered['Data de Emissão'] >= start_date) & (df_filtered['Data de Emissão'] <= end_date)]
 
-                        st.subheader("Notas Extraídas")
-                        with st.expander("Ver tabela de notas", expanded=True):
-                            st.dataframe(df_filtered, use_container_width=True)
+                        st.markdown("""
+                            <div style='background-color:#F3F4F6; border-radius:10px; padding:1.5rem 1rem 1rem 1rem; margin-bottom:1.5rem;'>
+                                <h3 style='color:#1F2937; margin-bottom:0.5rem;'>Notas Extraídas</h3>
+                                <div style='font-size:0.95rem; color:#6B7280; margin-bottom:1rem;'>Veja abaixo a tabela com os dados extraídos dos XMLs.</div>
+                        """, unsafe_allow_html=True)
+                        st.dataframe(df_filtered, use_container_width=True)
+                        st.markdown("</div>", unsafe_allow_html=True)
 
                         # Exporta para Excel
                         output = BytesIO()
@@ -284,13 +307,15 @@ def main():
                             label="📥 Baixar Planilha Excel (.xlsx)",
                             data=output,
                             file_name="resultado.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            use_container_width=True,
+                            help="Baixe a planilha pronta para análise corporativa."
                         )
                     else:
                         st.warning("Nenhum dado válido foi extraído dos arquivos XML.")
 
     st.markdown("---")
-    st.markdown("Desenvolvido por Beatriz Lourenço")
+    st.markdown("<div style='text-align:right; color:#6B7280; font-size:0.95rem;'>Desenvolvido por Beatriz Lourenço</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
