@@ -1,0 +1,8 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="12" fill="#F3F6FB"/>
+  <rect x="12" y="16" width="40" height="32" rx="4" fill="#217346"/>
+  <rect x="16" y="20" width="32" height="24" rx="2" fill="#FFFFFF"/>
+  <text x="20" y="36" font-family="Arial" font-size="10" fill="#217346">XML</text>
+  <rect x="36" y="40" width="12" height="8" rx="1" fill="#217346"/>
+  <text x="38" y="46" font-family="Arial" font-size="8" fill="#FFFFFF">XLSX</text>
+</svg>
