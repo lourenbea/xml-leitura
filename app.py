@@ -206,7 +206,7 @@ def main():
     st.title("XML to EXCEL")
 
     tipo_doc = st.radio("Tipo de Documento:", ["NFe", "CTe"])
-    layout = st.radio("Layout de Exportação:", ["Item", "Cabeçalho"])
+    layout = "Cabeçalho"  # Fixo, não mostra mais opção
 
     uploaded_files = st.file_uploader(
         "Selecione um ou mais arquivos ZIP com os XMLs",
@@ -240,10 +240,7 @@ def main():
 
                         if tipo_doc == "NFe":
                             ns = {'ns': 'http://www.portalfiscal.inf.br/nfe'}
-                            if layout == "Cabeçalho":
-                                dados_totais.extend(processar_nfe_por_cabecalho(xml_file, ns))
-                            else:
-                                dados_totais.extend(processar_nfe_por_item(xml_file, ns))
+                            dados_totais.extend(processar_nfe_por_cabecalho(xml_file, ns))
                         else:
                             ns = {'ns': 'http://www.portalfiscal.inf.br/cte'}
                             dados_totais.extend(processar_cte(xml_file, ns))
@@ -274,8 +271,8 @@ def main():
                         if 'Data de Emissão' in df_filtered.columns:
                             df_filtered = df_filtered[(df_filtered['Data de Emissão'] >= start_date) & (df_filtered['Data de Emissão'] <= end_date)]
 
-                        st.subheader("Dados Extraídos")
-                        with st.expander("Ver tabela de dados", expanded=True):
+                        st.subheader("Notas Extraídas")
+                        with st.expander("Ver tabela de notas", expanded=True):
                             st.dataframe(df_filtered, use_container_width=True)
 
                         csv = df_filtered.to_csv(index=False).encode('utf-8-sig')
