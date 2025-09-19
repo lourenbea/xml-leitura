@@ -55,7 +55,9 @@ with st.expander("ℹ️ Como usar", expanded=True):
     2. Utilize os filtros na barra lateral para verificar os resultados.<br>
     3. Baixe a planilha Excel pronta para análise.<br>
     <br>
-    <span style='color:#6B7280;'>Atenção: Apenas arquivos XML válidos serão processados.</span>
+    <span style='color:#6B7280;'>Atenção: No caso de NF cancelada, é necessário que exista o evento de cancelamento para o app reconhecer.
+Se não houver esse evento e a nota estiver cancelada, será preciso fazer a exclusão manualmente. Apenas arquivos XML válidos serão processados.</span>
+                
     """, unsafe_allow_html=True)
 
 # ===============================
