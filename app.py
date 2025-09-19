@@ -20,7 +20,7 @@ st.set_page_config(
 # Logo e título
 col_logo, col_title = st.columns([1, 8])
 with col_logo:
-    st.image("icon-xml-excel.svg", width=40)
+    st.image("icon-xml-excel.svg", width=70)
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
 with col_title:
     st.markdown("""
