@@ -194,6 +194,7 @@ def processar_nfe_por_cabecalho(xml_path, ns):
             "CNPJ Emitente": cnpj_emitente,
             "Emitente": emitente,
             "UF Emitente": uf_emitente,
+            "CFOP": cfop,
             "Valor da Nota": total.find('ns:ICMSTot/ns:vNF', ns).text if total.find('ns:ICMSTot/ns:vNF', ns) is not None else "",
             "CST/CSOSN": cst_csosn,
             "ICMS": total.find('ns:ICMSTot/ns:vICMS', ns).text if total.find('ns:ICMSTot/ns:vICMS', ns) is not None else "",
@@ -204,7 +205,6 @@ def processar_nfe_por_cabecalho(xml_path, ns):
             "Frete": frete.text if frete is not None else "",
             "Seguro": seguro.text if seguro is not None else "",
             "ICMS Desonerado": total.find('ns:ICMSTot/ns:vICMSDeson', ns).text if total.find('ns:ICMSTot/ns:vICMSDeson', ns) is not None else "",
-            "CFOP": cfop,
             "Status da NFe": status
         }]
     except ET.ParseError:
