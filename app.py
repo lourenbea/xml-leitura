@@ -24,7 +24,7 @@ with col_logo:
 with col_title:
     st.markdown("""
         <h1 style='margin-bottom:0; color:#1F2937; font-size:2.5rem;'>Leitor de XMLs</h1>
-        <span style='color:#4B5563; font-size:1.2rem;'>Conversão corporativa de NFe e CTe para Excel</span>
+        <span style='color:#4B5563; font-size:1.2rem;'>Conversão de NFe e CTe para Excel</span>
     """, unsafe_allow_html=True)
 
 st.markdown("---")
@@ -225,7 +225,7 @@ def main():
     layout = "Cabeçalho"  # Fixo, não mostra mais opção
 
     uploaded_files = st.file_uploader(
-        "<b>Selecione um ou mais arquivos ZIP com os XMLs</b>",
+        "Selecione um ou mais arquivos ZIP com os XMLs",
         type="zip",
         accept_multiple_files=True,
         help="Apenas arquivos ZIP contendo XMLs de NFe ou CTe.",
