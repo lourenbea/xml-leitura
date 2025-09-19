@@ -20,7 +20,7 @@ st.set_page_config(
 # Logo e título
 col_logo, col_title = st.columns([1, 8])
 with col_logo:
-    st.image("https://cdn-icons-png.flaticon.com/512/337/337946.png", width=60)
+    st.image("icon-xml-excel.svg", width=60)
 with col_title:
     st.markdown("""
         <h1 style='margin-bottom:0; color:#1F2937; font-size:2.5rem;'>Leitor de XMLs</h1>
