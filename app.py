@@ -275,12 +275,16 @@ def main():
                         with st.expander("Ver tabela de notas", expanded=True):
                             st.dataframe(df_filtered, use_container_width=True)
 
-                        csv = df_filtered.to_csv(index=False).encode('utf-8-sig')
+                        # Exporta para Excel
+                        output = BytesIO()
+                        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                            df_filtered.to_excel(writer, index=False, sheet_name='Notas')
+                        output.seek(0)
                         st.download_button(
-                            label="📥 Baixar Planilha Excel (CSV)",
-                            data=csv,
-                            file_name="resultado.csv",
-                            mime="text/csv"
+                            label="📥 Baixar Planilha Excel (.xlsx)",
+                            data=output,
+                            file_name="resultado.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         )
                     else:
                         st.warning("Nenhum dado válido foi extraído dos arquivos XML.")
