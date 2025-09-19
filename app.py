@@ -138,6 +138,77 @@ def processar_nfe_por_cabecalho(xml_path, ns):
     try:
         tree = ET.parse(xml_path)
         root = tree.getroot()
+        # Tenta pegar o CFOP do primeiro item (det)
+        det = root.find('.//ns:det', ns)
+        cfop = det.find('ns:prod/ns:CFOP', ns).text if det is not None and det.find('ns:prod/ns:CFOP', ns) is not None else ""
+        # ...restante do código permanece igual...
+        emit = root.find('.//ns:emit', ns)
+        ide = root.find('.//ns:ide', ns)
+        total = root.find('.//ns:total', ns)
+        if emit is None or ide is None or total is None:
+            return []
+
+        chave_acesso_tag = root.find('.//ns:infProt/ns:chNFe', ns)
+        chave_acesso = chave_acesso_tag.text if chave_acesso_tag is not None else ""
+
+        status_tag = root.find('.//ns:infProt/ns:cStat', ns)
+        status = status_tag.text if status_tag is not None else ""
+
+        emitente = emit.find('ns:xNome', ns).text if emit.find('ns:xNome', ns) is not None else ""
+        cnpj_emitente = emit.find('ns:CNPJ', ns).text if emit.find('ns:CNPJ', ns) is not None else ""
+        uf_emitente = emit.find('ns:enderEmit/ns:UF', ns).text if emit.find('ns:enderEmit/ns:UF', ns) is not None else ""
+        numero_nfe = ide.find('ns:nNF', ns).text if ide.find('ns:nNF', ns) is not None else ""
+        data_emissao = ide.find('ns:dhEmi', ns).text if ide.find('ns:dhEmi', ns) is not None else ""
+
+        # Identificadores extras
+    # cNF e cDV removidos conforme solicitado
+        # CST/CSOSN (do primeiro item)
+        cst_csosn = ""
+        if det is not None:
+            # Simples Nacional: busca CSOSN
+            csosn = det.find('.//ns:CSOSN', ns)
+            if csosn is not None and csosn.text:
+                cst_csosn = csosn.text
+            else:
+                # Regime normal: busca CST
+                cst = det.find('.//ns:CST', ns)
+                if cst is not None and cst.text:
+                    cst_csosn = cst.text
+        modelo = ide.find('ns:mod', ns).text if ide.find('ns:mod', ns) is not None else ""
+        serie = ide.find('ns:serie', ns).text if ide.find('ns:serie', ns) is not None else ""
+        versao = root.attrib.get('versao', "")
+        cUF = ide.find('ns:cUF', ns).text if ide.find('ns:cUF', ns) is not None else ""
+
+        frete = root.find('.//ns:transp/ns:vFrete', ns)
+        seguro = root.find('.//ns:transp/ns:vSeg', ns)
+
+        return [{
+            "Chave de Acesso": chave_acesso,
+            "Número NFe": numero_nfe,
+            "Série": serie,
+            "Modelo": modelo,
+            # "UF (cUF)": cUF,  # removido
+            # "Versão": versao,  # removido
+            "Data de Emissão": data_emissao,
+            "CNPJ Emitente": cnpj_emitente,
+            "Emitente": emitente,
+            "UF Emitente": uf_emitente,
+            "Valor da Nota": total.find('ns:ICMSTot/ns:vNF', ns).text if total.find('ns:ICMSTot/ns:vNF', ns) is not None else "",
+            "CST/CSOSN": cst_csosn,
+            "ICMS": total.find('ns:ICMSTot/ns:vICMS', ns).text if total.find('ns:ICMSTot/ns:vICMS', ns) is not None else "",
+            "IPI": total.find('ns:ICMSTot/ns:vIPI', ns).text if total.find('ns:ICMSTot/ns:vIPI', ns) is not None else "",
+            "PIS": total.find('ns:ICMSTot/ns:vPIS', ns).text if total.find('ns:ICMSTot/ns:vPIS', ns) is not None else "",
+            "COFINS": total.find('ns:ICMSTot/ns:vCOFINS', ns).text if total.find('ns:ICMSTot/ns:vCOFINS', ns) is not None else "",
+            "ICMS ST": total.find('ns:ICMSTot/ns:vST', ns).text if total.find('ns:ICMSTot/ns:vST', ns) is not None else "",
+            "Frete": frete.text if frete is not None else "",
+            "Seguro": seguro.text if seguro is not None else "",
+            "ICMS Desonerado": total.find('ns:ICMSTot/ns:vICMSDeson', ns).text if total.find('ns:ICMSTot/ns:vICMSDeson', ns) is not None else "",
+            "CFOP": cfop,
+            "Status da NFe": status
+        }]
+    except ET.ParseError:
+        st.error(f"Erro ao analisar o arquivo XML: {os.path.basename(xml_path)}")
+        return []
 
         emit = root.find('.//ns:emit', ns)
         ide = root.find('.//ns:ide', ns)
@@ -157,16 +228,30 @@ def processar_nfe_por_cabecalho(xml_path, ns):
         numero_nfe = ide.find('ns:nNF', ns).text if ide.find('ns:nNF', ns) is not None else ""
         data_emissao = ide.find('ns:dhEmi', ns).text if ide.find('ns:dhEmi', ns) is not None else ""
 
+        # Identificadores extras
+        cNF = ide.find('ns:cNF', ns).text if ide.find('ns:cNF', ns) is not None else ""
+        cDV = ide.find('ns:cDV', ns).text if ide.find('ns:cDV', ns) is not None else ""
+        modelo = ide.find('ns:mod', ns).text if ide.find('ns:mod', ns) is not None else ""
+        serie = ide.find('ns:serie', ns).text if ide.find('ns:serie', ns) is not None else ""
+        versao = root.attrib.get('versao', "")
+        cUF = ide.find('ns:cUF', ns).text if ide.find('ns:cUF', ns) is not None else ""
+
         frete = root.find('.//ns:transp/ns:vFrete', ns)
         seguro = root.find('.//ns:transp/ns:vSeg', ns)
 
         return [{
+            "Chave de Acesso": chave_acesso,
             "Número NFe": numero_nfe,
+            "Série": serie,
+            "Modelo": modelo,
+            "UF (cUF)": cUF,
+            "Versão": versao,
             "Data de Emissão": data_emissao,
             "CNPJ Emitente": cnpj_emitente,
             "Emitente": emitente,
             "UF Emitente": uf_emitente,
             "Valor da Nota": total.find('ns:ICMSTot/ns:vNF', ns).text if total.find('ns:ICMSTot/ns:vNF', ns) is not None else "",
+            "CST/CSOSN": cst_csosn,
             "ICMS": total.find('ns:ICMSTot/ns:vICMS', ns).text if total.find('ns:ICMSTot/ns:vICMS', ns) is not None else "",
             "IPI": total.find('ns:ICMSTot/ns:vIPI', ns).text if total.find('ns:ICMSTot/ns:vIPI', ns) is not None else "",
             "PIS": total.find('ns:ICMSTot/ns:vPIS', ns).text if total.find('ns:ICMSTot/ns:vPIS', ns) is not None else "",
@@ -174,8 +259,8 @@ def processar_nfe_por_cabecalho(xml_path, ns):
             "ICMS ST": total.find('ns:ICMSTot/ns:vST', ns).text if total.find('ns:ICMSTot/ns:vST', ns) is not None else "",
             "Frete": frete.text if frete is not None else "",
             "Seguro": seguro.text if seguro is not None else "",
-            "Chave de Acesso": chave_acesso,
             "ICMS Desonerado": total.find('ns:ICMSTot/ns:vICMSDeson', ns).text if total.find('ns:ICMSTot/ns:vICMSDeson', ns) is not None else "",
+            "CFOP": cfop,
             "Status da NFe": status
         }]
     except ET.ParseError:
