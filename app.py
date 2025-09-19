@@ -303,10 +303,19 @@ def main():
                         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                             df_filtered.to_excel(writer, index=False, sheet_name='Notas')
                         output.seek(0)
+
+                        # Define nome do arquivo com nome do emitente (se houver)
+                        nome_emitente = ""
+                        if 'Emitente' in df_filtered.columns and not df_filtered['Emitente'].isna().all():
+                            nome_emitente = df_filtered['Emitente'].iloc[0]
+                            if isinstance(nome_emitente, str):
+                                nome_emitente = nome_emitente.strip().replace(' ', '_').replace('/', '_')
+                        file_name = f"notas_{nome_emitente}.xlsx" if nome_emitente else "notas.xlsx"
+
                         st.download_button(
                             label="📥 Baixar Planilha Excel (.xlsx)",
                             data=output,
-                            file_name="resultado.xlsx",
+                            file_name=file_name,
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             use_container_width=True,
                             help="Baixe a planilha pronta para análise corporativa."
