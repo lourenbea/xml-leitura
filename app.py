@@ -20,11 +20,12 @@ st.set_page_config(
 # Logo e título
 col_logo, col_title = st.columns([1, 8])
 with col_logo:
-    st.image("icon-xml-excel.svg", width=60)
+    st.image("icon-xml-excel.svg", width=40)
+    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
 with col_title:
     st.markdown("""
         <h1 style='margin-bottom:0; color:#1F2937; font-size:2.5rem;'>Leitor de XMLs</h1>
-        <span style='color:#4B5563; font-size:1.2rem;'>Conversão de NFe e CTe para Excel</span>
+        <span style='color:#4B5563; font-size:1.2rem;'>Conversão de NFe/NFCe e CTe para Excel</span>
     """, unsafe_allow_html=True)
 
 st.markdown("---")
@@ -33,7 +34,7 @@ st.markdown("---")
 with st.expander("ℹ️ Como usar", expanded=True):
     st.markdown("""
     1. Faça upload de um ou mais arquivos ZIP contendo XMLs de NFe ou CTe.<br>
-    2. Utilize os filtros na barra lateral para refinar os resultados.<br>
+    2. Utilize os filtros na barra lateral para verificar os resultados.<br>
     3. Baixe a planilha Excel pronta para análise.<br>
     <br>
     <span style='color:#6B7280;'>Atenção: Apenas arquivos XML válidos serão processados.</span>
