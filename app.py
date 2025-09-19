@@ -248,7 +248,7 @@ def main():
                 if not xml_files:
                     st.warning("Nenhum arquivo XML encontrado nos ZIPs.")
                 else:
-                    st.info(f"<b>{len(xml_files)}</b> arquivo(s) XML encontrado(s)", unsafe_allow_html=True)
+                    st.markdown(f"<div style='background-color:#E8EEF5; color:#1F2937; border-radius:8px; padding:0.7em 1em; margin-bottom:1em; font-size:1.1em;'><b>{len(xml_files)}</b> arquivo(s) XML encontrado(s)</div>", unsafe_allow_html=True)
 
                     progress_bar = st.progress(0)
                     dados_totais = []
