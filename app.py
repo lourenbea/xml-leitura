@@ -5,6 +5,23 @@ import os
 import xml.etree.ElementTree as ET
 import tempfile
 from datetime import datetime
+from io import BytesIO   # para exportar Excel
+
+# ===============================
+# Configuração visual do app
+# ===============================
+st.set_page_config(
+    page_title="Leitor de XMLs",   # título da aba do navegador
+    page_icon="📂",                # ícone na aba
+    layout="wide"                  # usa toda a largura da tela
+)
+
+# Cabeçalho do app
+st.title("📂 Leitor de XMLs - XML to Excel")
+st.markdown("Converta **NFe** e **CTe** em planilhas Excel de forma rápida 🚀")
+
+# Logo (opcional: pode ser link da internet ou arquivo local ex: 'logo.png')
+# st.image("logo.png", width=150)
 
 # ===============================
 # Função para extrair XMLs de um ZIP

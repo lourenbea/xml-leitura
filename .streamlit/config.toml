@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#1F77B4"          # azul para botões
+backgroundColor = "#F9F9F9"       # fundo claro
+secondaryBackgroundColor = "#E8EEF5"  # caixas expandidas
+textColor = "#000000"             # cor do texto
+font = "sans serif"
