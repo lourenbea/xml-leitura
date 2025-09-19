@@ -51,10 +51,9 @@ st.markdown("---")
 # Instruções
 with st.expander("ℹ️ Como usar", expanded=True):
     st.markdown("""
-<b>Como usar:</b><br><br>
-Faça o upload de um ou mais arquivos .zip contendo XMLs de NFe ou CTe.<br>
-Use os filtros na barra lateral para visualizar os resultados.<br>
-Baixe a planilha Excel já pronta para análise.<br>
+1. Faça o upload de um ou mais arquivos .zip contendo XMLs de NFe ou CTe.<br>
+2. Use os filtros na barra lateral para visualizar os resultados.<br>
+3. Baixe a planilha Excel já pronta para análise.<br>
 <br>
 No caso de NF cancelada, é necessário que exista o evento de cancelamento para que o app reconheça.<br>
   – Se a nota estiver cancelada mas não houver evento, será preciso excluí-la manualmente.<br>
