@@ -56,7 +56,7 @@ with st.expander("ℹ️ Como usar", expanded=True):
 3. Baixe a planilha Excel já pronta para análise.<br>
 <br>
 No caso de NF cancelada, é necessário que exista o evento de cancelamento para que o app reconheça.<br>
-  – Se a nota estiver cancelada mas não houver evento, será preciso excluí-la manualmente.<br>
+   Se a nota estiver cancelada mas não houver evento, será preciso excluí-la manualmente.<br>
 <br>
 <span style='color:#6B7280;'>⚠️ Atenção: Apenas arquivos XML válidos serão processados.</span>
 """, unsafe_allow_html=True)
@@ -352,6 +352,9 @@ def main():
 
                     arquivos_extraidos = extrair_xmls_de_zip(zip_path, temp_dir)
                     xml_files.extend(arquivos_extraidos)
+
+                # Remove duplicatas mantendo a ordem
+                xml_files = list(dict.fromkeys(xml_files))
 
                 if not xml_files:
                     st.warning("Nenhum arquivo XML encontrado nos ZIPs.")
